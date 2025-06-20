@@ -1,0 +1,5 @@
+.app-wrapper {
+  height: 100vh;
+  background-color: #212121;
+  display: flex;
+}
