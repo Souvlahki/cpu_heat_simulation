@@ -1,24 +1,14 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { data } from "../utils/data";
 import "../styles/sidebar.css";
 
-export default function Sidebar() {
+export default function Sidebar({ setGrid }) {
   const [cpuUtilization, setCpuUtilization] = useState(45);
-  const [selectedCpu, setSelectedCpu] = useState("Intel Core i7-13700K");
+  const [selectedCpu, setSelectedCpu] = useState("Intel Core i9-14900K");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const popularCpus = [
-    "Intel Core i9-14900K",
-    "Intel Core i7-13700K",
-    "Intel Core i5-13600K",
-    "AMD Ryzen 9 7950X",
-    "AMD Ryzen 7 7700X",
-    "AMD Ryzen 5 7600X",
-    "Apple M3 Pro",
-    "Apple M3 Max",
-    "Intel Core i9-13900H",
-    "AMD Ryzen 9 7940HS",
-  ];
+  const popularCpus = data.slice();
 
   const getUtilizationClass = (percentage) => {
     if (percentage < 30) return "low";
@@ -32,6 +22,39 @@ export default function Sidebar() {
     if (percentage < 60) return "Moderate";
     if (percentage < 80) return "High";
     return "Critical";
+  };
+
+  const startSimulation = () => {
+    const socket = new WebSocket("ws://127.0.0.1:8000/ws/simulation");
+
+    console.log("starting simulation");
+    console.log("Sending simulation request with:", {
+      cpu_util: cpuUtilization,
+      cpu_name: selectedCpu,
+    });
+    socket.onopen = () => {
+      socket.send(
+        JSON.stringify({
+          cpu_util: cpuUtilization,
+          cpu_name: selectedCpu,
+        })
+      );
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Grid update:", data.grid);
+      console.log("average temp:" ,data.average_temp)
+      setGrid(data.grid);
+    };
+
+    socket.onclose = () => {
+      console.log("Simulation completed");
+    };
+
+    socket.onerror = (err) => {
+      console.error("WebSocket error:", err);
+    };
   };
 
   return (
@@ -96,6 +119,11 @@ export default function Sidebar() {
             className={`slider ${getUtilizationClass(cpuUtilization)}`}
           />
         </div>
+      </div>
+
+      {/*simulation button  */}
+      <div>
+        <button onClick={startSimulation}>simulate</button>
       </div>
     </aside>
   );

@@ -1,8 +1,3 @@
-import numpy as np
-from integrater import get_total_energy_consumed
-from interpolater import interpolate_grid
-
-
 def get_neighbors_temperature(grid, point, boundary_temp):
     """
     Get temperatures of 6-connected (face-adjacent) neighbors in 3D.
@@ -29,8 +24,17 @@ def get_neighbors_temperature(grid, point, boundary_temp):
 
 
 def calculate_heat(cell_temp, neighbor_temps, time_step, thermal_diffusivity):
-    delta = sum(n - cell_temp for n in neighbor_temps)
-    return cell_temp + time_step * thermal_diffusivity * delta
+    """
+    Calculates the new temperature of a cell based on its neighbors using
+    the forward-in-time, central-in-space (FTCS) method for the 3D heat equation.
+    """
+    # The term in the parenthesis is the discrete 3D Laplacian:
+    # (Sum of neighbors) - 6 * (cell_temp)
+    laplacian = sum(neighbor_temps) - 6 * cell_temp
+
+    new_temp = cell_temp + time_step * thermal_diffusivity * laplacian
+
+    return new_temp
 
 
 def apply_cooling(grid, ambient_temp=20.0, rate=0.005):
@@ -38,12 +42,13 @@ def apply_cooling(grid, ambient_temp=20.0, rate=0.005):
 
 
 def inject_cpu_heat(grid, power, center_size):
+    new_grid = grid.copy()
     nx, ny, nz = grid.shape
     cx, cy, cz = nx // 2, ny // 2, nz // 2
     start = cx - center_size // 2
     end = cx + center_size // 2
-    grid[start:end, start:end, start:end] += power
-    return grid
+    new_grid[start:end, start:end, start:end] += power
+    return new_grid
 
 
 def heat_transfer(grid, time_step, thermal_diffusivity, boundary_temp):
@@ -57,38 +62,3 @@ def heat_transfer(grid, time_step, thermal_diffusivity, boundary_temp):
                     grid[i, j, k], neighbors, time_step, thermal_diffusivity
                 )
     return new_grid
-
-
-def get_grid():
-    resolution = 30
-    starting_temp = 20.0
-    return np.full(
-        (resolution, resolution, resolution), starting_temp, dtype=np.float64
-    )
-
-
-main_grid = get_grid()
-
-
-def heat_simulation(tdp, cpu_util_percent, grid=main_grid):
-    grid = get_grid()
-    time_step = 1.0
-    simulation_steps = 500
-    center_region_size = 10
-    power_history = []
-    power = (cpu_util_percent / 100.0) * tdp
-    scaling_factor = 0.09
-    generated_heat = power * scaling_factor
-    thermal_diffusivity = 1.11e-2
-    boundary_temp = 20
-    cooling_rate = 0.005
-
-    for _ in range(simulation_steps):
-        power_history.append(power)
-        grid = inject_cpu_heat(grid, generated_heat, center_region_size)
-        grid = heat_transfer(grid, time_step, thermal_diffusivity, boundary_temp)
-        grid = apply_cooling(grid, ambient_temp=boundary_temp, rate=cooling_rate)
-
-    interpolator = interpolate_grid(grid)
-    energy = get_total_energy_consumed(power_history, time_step)
-    return grid, interpolator, energy
