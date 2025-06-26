@@ -3,11 +3,19 @@ import { ChevronDown } from "lucide-react";
 import { data } from "../utils/data";
 import "../styles/sidebar.css";
 
-export default function Sidebar({ setGrid }) {
+export default function Sidebar({
+  setGrid,
+  setInterpAverageTemp,
+  setTotalPower,
+  setOptimizedCooling,
+  setIsShown,
+  isShown,
+}) {
   const [cpuUtilization, setCpuUtilization] = useState(45);
   const [selectedCpu, setSelectedCpu] = useState("Intel Core i9-14900K");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+  const [coolingRate, setCoolingRate] = useState(0.01);
+  const [averageTemp, setAverageTemp] = useState(0);
   const popularCpus = data.slice();
 
   const getUtilizationClass = (percentage) => {
@@ -37,15 +45,35 @@ export default function Sidebar({ setGrid }) {
         JSON.stringify({
           cpu_util: cpuUtilization,
           cpu_name: selectedCpu,
+          cooling_rate: coolingRate,
         })
       );
     };
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("Grid update:", data.grid);
-      console.log("average temp:" ,data.average_temp)
-      setGrid(data.grid);
+
+      if (data.grid) {
+        setGrid(data.grid);
+      }
+
+      if (data.average_temp) {
+        setAverageTemp(data.average_temp);
+      }
+
+      if (data.interp_average) {
+        console.log(data.interp_average);
+        setInterpAverageTemp(data.interp_average);
+        setIsShown(true);
+      }
+
+      if (data.total_power) {
+        setTotalPower(data.total_power);
+      }
+
+      if (data.optimized_cooling_rate) {
+        setOptimizedCooling(data.optimized_cooling_rate);
+      }
     };
 
     socket.onclose = () => {
@@ -94,7 +122,7 @@ export default function Sidebar({ setGrid }) {
         </div>
       </div>
 
-      {/* CPU Utilization Slider */}
+      {/* CPU Utilization section */}
       <div className="utilization-section">
         <div className="utilization-header">
           <label className="section-label">CPU Utilization</label>
@@ -108,7 +136,7 @@ export default function Sidebar({ setGrid }) {
           </div>
         </div>
 
-        {/* Custom Slider */}
+        {/* Cpu utilization slider */}
         <div className="slider-container">
           <input
             type="range"
@@ -121,9 +149,44 @@ export default function Sidebar({ setGrid }) {
         </div>
       </div>
 
+      {/* Cooling Rate section */}
+      <div className="utilization-seciton">
+        <div className="utilization-header">
+          <label className="section-label">Cooling Rate</label>
+          <div className="utilization-info">
+            <span className="percentage">{coolingRate.toFixed(3)}</span>
+          </div>
+        </div>
+
+        <div className="slider-container">
+          <input
+            type="range"
+            min="0.001"
+            max="0.09"
+            step="0.001"
+            value={coolingRate}
+            onChange={(e) => setCoolingRate(parseFloat(e.target.value))}
+            className={`slider ${getUtilizationClass(cpuUtilization)}`}
+          />
+        </div>
+      </div>
+
       {/*simulation button  */}
-      <div>
-        <button onClick={startSimulation}>simulate</button>
+      <div className="simulate-btn-container">
+        <button onClick={startSimulation} className="simulate-btn">
+          simulate
+        </button>
+      </div>
+
+      <div className="show-chart-container">
+        <label htmlFor="panelCheck">Show Chart</label>
+        <input
+          type="checkbox"
+          name="panelCheck"
+          id="panelCheck"
+          checked={isShown}
+          onChange={() => setIsShown(!isShown)}
+        />
       </div>
     </aside>
   );

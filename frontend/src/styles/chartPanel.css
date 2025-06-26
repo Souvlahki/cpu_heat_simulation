@@ -1,0 +1,37 @@
+.chart-panel {
+  padding: 1.5rem;
+  width: 900px;
+  background-color: #181818;
+  color: white;
+  border-left: 1px solid #374151;
+}
+
+.chart-title {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+}
+
+.summary-section {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #2a2a3d;
+  border-radius: 8px;
+}
+
+.summary-section h4 {
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  color: #ffffff;
+}
+
+.summary-section p {
+  margin: 0.4rem 0;
+  color: #dcdcdc;
+}
+
+.optimization-note {
+  color: #8ad28a;
+  font-style: italic;
+}
