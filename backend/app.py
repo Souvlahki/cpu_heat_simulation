@@ -2,18 +2,19 @@ import numpy as np
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from heat_solver import apply_cooling, heat_transfer, inject_cpu_heat
-from integrater import get_total_energy
-from interpolater import interpolate_grid
+from integrater import get_total_power
+from interpolater import get_interp_data
+from optimizer import get_optimal_cooling
 
 app = FastAPI()
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins (for development only)
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -30,6 +31,7 @@ async def websocket_simulation(websocket: WebSocket):
 
         cpu_util = data["cpu_util"]
         cpu_name = data["cpu_name"]
+        cooling_rate = data["cooling_rate"]
 
         cpu_list = {
             "Intel Core i9-14900K": 125,
@@ -46,19 +48,21 @@ async def websocket_simulation(websocket: WebSocket):
             await websocket.close()
             return
 
+        # -------------- Initilization ---------------------
+
         grid = np.full((20, 20, 20), 20.0)
         power = (cpu_util / 100.0) * tdp
         scaling_factor = 0.03
         generated_heat = power * scaling_factor
 
-        simulation_steps = 300
+        simulation_steps = 50
         center_size = 10
-        time_step = 0.1 
+        time_step = 1
         boundary_temp = 20.0
         thermal_diffusivity = 1.11e-2
-        cooling_rate = 0.005
 
         power_history = []
+        average_temp = []
 
         for step in range(simulation_steps):
             power_history.append(power)
@@ -67,15 +71,36 @@ async def websocket_simulation(websocket: WebSocket):
             grid = heat_transfer(grid, time_step, thermal_diffusivity, boundary_temp)
             grid = apply_cooling(grid, ambient_temp=boundary_temp, rate=cooling_rate)
 
-            # interpolated_grid = interpolate_grid(grid, output_resolution=40)
-
-            # total_energy = get_total_energy(power_history, time_step)
+            average_temp.append(np.mean(grid))
 
             await websocket.send_json(
                 {"grid": grid.tolist(), "average_temp": np.mean(grid)}
             )
 
             step += time_step
+
+        total_power = get_total_power(power_history, time_step, simulation_steps)
+
+        interp_average_temp = get_interp_data(
+            average_temp, np.arange(0, simulation_steps, 1)
+        )
+
+        await websocket.send_json(
+            {
+                "interp_average": interp_average_temp.tolist(),
+                "total_power": total_power,
+                "grid": grid.tolist(),
+                "average_temp": np.mean(grid),
+            }
+        )
+
+        if np.mean(grid) > 65:
+
+            optimized_cooling_rate = get_optimal_cooling(cpu_util, tdp)
+
+            await websocket.send_json(
+                {"optimized_cooling_rate": optimized_cooling_rate}
+            )
 
         await websocket.close()
 

@@ -1,23 +1,11 @@
 import numpy as np
-from scipy.interpolate import RegularGridInterpolator
+from scipy.interpolate import interp1d
 
 
-def interpolate_grid(grid, output_resolution=60):
-    resolution = grid.shape[0]
+def get_interp_data(y_data, x_data, output_resolution=60):
+    interp_func = interp1d(x_data, y_data, kind="linear")
+    x_interp = np.linspace(x_data[0], x_data[-1] + 1, output_resolution)
 
-    # 1. Define original coordinate grid
-    x = y = z = np.linspace(0, resolution - 1, resolution)
-    interpolator = RegularGridInterpolator((x, y, z), grid, method="linear")
+    y_interp = interp_func(x_interp)
 
-    # 2. Create finer grid of target points to interpolate to
-    xi = yi = zi = np.linspace(0, resolution - 1, output_resolution)
-    X, Y, Z = np.meshgrid(xi, yi, zi, indexing="ij")
-    interp_coords = np.stack([X.ravel(), Y.ravel(), Z.ravel()], axis=-1)
-
-    # 3. Interpolate
-    interp_values = interpolator(interp_coords)
-    interpolated_grid = interp_values.reshape(
-        (output_resolution, output_resolution, output_resolution)
-    )
-
-    return interpolated_grid
+    return y_interp
