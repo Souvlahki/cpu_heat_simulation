@@ -8,10 +8,14 @@ export default function Sidebar({
   setInterpAverageTemp,
   setTotalPower,
   setOptimizedCooling,
+  setBounds,
+  setDimensions,
   setIsShown,
+  setTime,
+  setIsLoading,
   isShown,
 }) {
-  const [cpuUtilization, setCpuUtilization] = useState(45);
+  const [cpuUtilization, setCpuUtilization] = useState(8);
   const [selectedCpu, setSelectedCpu] = useState("Intel Core i9-14900K");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [coolingRate, setCoolingRate] = useState(0.01);
@@ -40,6 +44,7 @@ export default function Sidebar({
       cpu_util: cpuUtilization,
       cpu_name: selectedCpu,
     });
+
     socket.onopen = () => {
       socket.send(
         JSON.stringify({
@@ -48,23 +53,34 @@ export default function Sidebar({
           cooling_rate: coolingRate,
         })
       );
+
+      setAverageTemp(null);
+      setInterpAverageTemp(null);
+      setTotalPower(null);
+      setOptimizedCooling(null);
+      setGrid(null);
+      setTime(null);
+
+      setIsLoading(true);
     };
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
 
       if (data.grid) {
+        console.log(data.grid);
         setGrid(data.grid);
       }
 
       if (data.average_temp) {
+        console.log(data.average_temp);
         setAverageTemp(data.average_temp);
       }
 
       if (data.interp_average) {
-        console.log(data.interp_average);
         setInterpAverageTemp(data.interp_average);
         setIsShown(true);
+        setIsLoading(false);
       }
 
       if (data.total_power) {
@@ -73,6 +89,10 @@ export default function Sidebar({
 
       if (data.optimized_cooling_rate) {
         setOptimizedCooling(data.optimized_cooling_rate);
+      }
+
+      if (data.time) {
+        setTime(data.time);
       }
     };
 
@@ -162,7 +182,7 @@ export default function Sidebar({
           <input
             type="range"
             min="0.001"
-            max="0.09"
+            max="0.1"
             step="0.001"
             value={coolingRate}
             onChange={(e) => setCoolingRate(parseFloat(e.target.value))}

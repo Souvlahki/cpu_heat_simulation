@@ -35,3 +35,8 @@
   color: #8ad28a;
   font-style: italic;
 }
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+}

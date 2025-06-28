@@ -21,7 +21,6 @@
   font-size: 1rem;
   font-weight: 500;
   color: #d1d5db;
-  margin-bottom: 12px;
 }
 
 /* Dropdown Styles */
@@ -126,12 +125,13 @@
 
 .utilization-info {
   display: flex;
+  padding: 0.2em;
   align-items: center;
   gap: 8px;
 }
 
 .status-badge {
-  padding: 4px 8px;
+  padding: 0.2em;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
@@ -257,4 +257,55 @@
   color: #1f2937;
   background-color: #fff;
   cursor: pointer;
+}
+
+.show-chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  gap: 8px;
+  padding: 1em 1.2em;
+  background-color: #1f2937;
+  border-radius: 12px;
+  width: fit-content;
+  font-family: Arial, sans-serif;
+}
+
+.show-chart-container label {
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+
+.show-chart-container input[type="checkbox"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border: 2px solid #666;
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.show-chart-container input[type="checkbox"]:checked {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.show-chart-container input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.show-chart-container input[type="checkbox"]:hover {
+  border-color: #007bff;
 }

@@ -9,6 +9,9 @@ export default function App() {
   const [interpAverageTemp, setInterpAverageTemp] = useState();
   const [interpPowerHistory, setInterpPowerHistory] = useState();
   const [totalPower, setTotalPower] = useState();
+  const [optimizedCooling, setOptimizedCooling] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+  const [time, setTime] = useState();
 
   const [isShown, setIsShown] = useState(false);
 
@@ -19,8 +22,11 @@ export default function App() {
         setTotalPower={setTotalPower}
         setInterpAverageTemp={setInterpAverageTemp}
         setInterpPowerHistory={setInterpPowerHistory}
+        setOptimizedCooling={setOptimizedCooling}
+        setTime={setTime}
         isShown={isShown}
         setIsShown={setIsShown}
+        setIsLoading={setIsLoading}
       />
       <CpuCanvas grid={grid} />
       <ChartPanel
@@ -28,6 +34,9 @@ export default function App() {
         totalPower={totalPower}
         interpPowerHistory={interpPowerHistory}
         isShown={isShown}
+        optimizedCoolingRate={optimizedCooling}
+        isLoading={isLoading}
+        time={time}
       />
     </div>
   );
