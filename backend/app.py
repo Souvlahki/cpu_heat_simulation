@@ -1,3 +1,5 @@
+import asyncio
+
 import numpy as np
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +18,31 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def print_grid_slice(grid, slice_z=0):
+    """
+    Prints a 2D slice of the 3D grid to the console for debugging.
+    """
+    print(f"--- Grid Slice at Z = {slice_z} ---")
+    slice_data = grid[:, :, slice_z]  # Get the 2D plane at the specified z-index
+    for y in range(slice_data.shape[1]):
+        row_str = ""
+        for x in range(slice_data.shape[0]):
+            temp = slice_data[x, y]
+            if temp > 60:
+                char = "#"  # Hottest
+            elif temp > 40:
+                char = "O"  # Hot
+            elif temp > 25:
+                char = "o"  # Warm
+            elif temp > 20:
+                char = "."  # Slightly warm
+            else:
+                char = " "  # Cold
+            row_str += char + " "
+        print(row_str)
+    print("-" * (slice_data.shape[0] * 2 + 3))
 
 
 @app.get("/")
@@ -50,16 +77,16 @@ async def websocket_simulation(websocket: WebSocket):
 
         # -------------- Initilization ---------------------
 
-        grid = np.full((20, 20, 20), 20.0)
+        grid = np.full((20, 20, 40), 20.0)
         power = (cpu_util / 100.0) * tdp
-        scaling_factor = 0.03
+        scaling_factor = 0.1
         generated_heat = power * scaling_factor
 
-        simulation_steps = 50
+        simulation_steps = 100
         center_size = 10
         time_step = 1
         boundary_temp = 20.0
-        thermal_diffusivity = 1.11e-2
+        thermal_diffusivity = 60e-6 
 
         power_history = []
         average_temp = []
@@ -74,14 +101,18 @@ async def websocket_simulation(websocket: WebSocket):
             average_temp.append(np.mean(grid))
 
             await websocket.send_json(
-                {"grid": grid.tolist(), "average_temp": np.mean(grid)}
+                {
+                    "grid": grid.tolist(),
+                    "average_temp": np.mean(grid),
+                }
             )
+
 
             step += time_step
 
         total_power = get_total_power(power_history, time_step, simulation_steps)
 
-        interp_average_temp = get_interp_data(
+        interp_average_temp, x_interp = get_interp_data(
             average_temp, np.arange(0, simulation_steps, 1)
         )
 
@@ -91,10 +122,17 @@ async def websocket_simulation(websocket: WebSocket):
                 "total_power": total_power,
                 "grid": grid.tolist(),
                 "average_temp": np.mean(grid),
+                "time": x_interp.tolist(),
             }
         )
 
-        if np.mean(grid) > 65:
+        if np.isclose(np.mean(grid), 65) or np.mean(grid) > 65.0:
+
+            await websocket.send_json(
+                {
+                    "optimized_cooling_rate": "loading",
+                }
+            )
 
             optimized_cooling_rate = get_optimal_cooling(cpu_util, tdp)
 

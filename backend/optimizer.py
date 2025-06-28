@@ -5,17 +5,17 @@ from scipy.optimize import minimize_scalar
 
 def get_optimal_cooling(cpu_util, tdp, target_temp=40.0):
     power = (cpu_util / 100.0) * tdp
-    scaling_factor = 0.03
+    scaling_factor = 0.14
     generated_heat = power * scaling_factor
 
     center_size = 10
-    time_step = 1
-    simulation_steps = 50
+    time_step = 0.5
+    simulation_steps = 100
     boundary_temp = 20.0
     thermal_diffusivity = 1.11e-2
 
     def simulate_with_cooling(cooling_rate):
-        grid = np.full((20, 20, 20), 20.0)
+        grid = np.full((40, 40, 40), 20.0)
         for _ in range(simulation_steps):
             grid = inject_cpu_heat(grid, generated_heat, center_size)
             grid = heat_transfer(grid, time_step, thermal_diffusivity, boundary_temp)
