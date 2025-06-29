@@ -79,14 +79,14 @@ async def websocket_simulation(websocket: WebSocket):
 
         grid = np.full((20, 20, 40), 20.0)
         power = (cpu_util / 100.0) * tdp
-        scaling_factor = 0.1
+        scaling_factor = 0.13
         generated_heat = power * scaling_factor
 
         simulation_steps = 100
         center_size = 10
         time_step = 1
         boundary_temp = 20.0
-        thermal_diffusivity = 60e-6 
+        thermal_diffusivity = 60e-6
 
         power_history = []
         average_temp = []
@@ -104,9 +104,10 @@ async def websocket_simulation(websocket: WebSocket):
                 {
                     "grid": grid.tolist(),
                     "average_temp": np.mean(grid),
+                    "time_step": step,
                 }
             )
-
+            asyncio.sleep(1)
 
             step += time_step
 

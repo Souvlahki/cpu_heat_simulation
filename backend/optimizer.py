@@ -9,10 +9,10 @@ def get_optimal_cooling(cpu_util, tdp, target_temp=40.0):
     generated_heat = power * scaling_factor
 
     center_size = 10
-    time_step = 0.5
+    time_step = 1
     simulation_steps = 100
     boundary_temp = 20.0
-    thermal_diffusivity = 1.11e-2
+    thermal_diffusivity = 60e-6
 
     def simulate_with_cooling(cooling_rate):
         grid = np.full((40, 40, 40), 20.0)
