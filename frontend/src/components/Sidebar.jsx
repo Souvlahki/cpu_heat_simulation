@@ -8,18 +8,17 @@ export default function Sidebar({
   setInterpAverageTemp,
   setTotalPower,
   setOptimizedCooling,
-  setBounds,
-  setDimensions,
+  setAverageTemp,
   setIsShown,
   setTime,
   setIsLoading,
+  setTimeStep,
   isShown,
 }) {
   const [cpuUtilization, setCpuUtilization] = useState(8);
   const [selectedCpu, setSelectedCpu] = useState("Intel Core i9-14900K");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [coolingRate, setCoolingRate] = useState(0.01);
-  const [averageTemp, setAverageTemp] = useState(0);
   const popularCpus = data.slice();
 
   const getUtilizationClass = (percentage) => {
@@ -60,7 +59,7 @@ export default function Sidebar({
       setOptimizedCooling(null);
       setGrid(null);
       setTime(null);
-
+      setTimeStep(null);
       setIsLoading(true);
     };
 
@@ -93,6 +92,11 @@ export default function Sidebar({
 
       if (data.time) {
         setTime(data.time);
+      }
+
+      if (data.time_step) {
+        console.log(data.time_step);
+        setTimeStep(data.time_step + 1);
       }
     };
 

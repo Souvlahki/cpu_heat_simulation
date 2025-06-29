@@ -10,6 +10,8 @@ export default function App() {
   const [interpPowerHistory, setInterpPowerHistory] = useState();
   const [totalPower, setTotalPower] = useState();
   const [optimizedCooling, setOptimizedCooling] = useState();
+  const [timeStep, setTimeStep] = useState();
+  const [averageTemp, setAverageTemp] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [time, setTime] = useState();
 
@@ -20,8 +22,10 @@ export default function App() {
       <Sidebar
         setGrid={setGrid}
         setTotalPower={setTotalPower}
+        setAverageTemp={setAverageTemp}
         setInterpAverageTemp={setInterpAverageTemp}
         setInterpPowerHistory={setInterpPowerHistory}
+        setTimeStep={setTimeStep}
         setOptimizedCooling={setOptimizedCooling}
         setTime={setTime}
         isShown={isShown}
@@ -37,6 +41,8 @@ export default function App() {
         optimizedCoolingRate={optimizedCooling}
         isLoading={isLoading}
         time={time}
+        timeStep={timeStep}
+        averageTemp={averageTemp}
       />
     </div>
   );

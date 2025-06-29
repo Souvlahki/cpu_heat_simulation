@@ -33,12 +33,12 @@ function ColorLegend({ lut, position = [-4, 2, 0] }) {
         style={{
           background: "rgba(0, 0, 0, 0.8)",
           backdropFilter: "blur(10px)",
-          padding: "12px",
+          padding: "8px",
           borderRadius: "8px",
           color: "white",
           fontFamily: "monospace",
           fontSize: "12px",
-          minWidth: "100px",
+          Width: "70px",
           border: "1px solid rgba(255, 255, 255, 0.2)",
         }}
       >

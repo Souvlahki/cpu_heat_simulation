@@ -5,6 +5,8 @@ export default function ChartPanel({
   interpAverageTemp,
   totalPower,
   optimizedCoolingRate,
+  averageTemp,
+  timeStep,
   time,
   isShown,
   isLoading,
@@ -21,11 +23,19 @@ export default function ChartPanel({
   return (
     <div className="chart-panel">
       <h3 className="chart-title">Interpolated CPU Temperature</h3>
-      
+
       <div className="chart-container">
         {isLoading ? <p>Loading chart...</p> : <Chart x={x} y={y} />}
       </div>
 
+      <div className="summary-section">
+        <p className="temp-values">
+          <strong>Average temprature:</strong>{" "}
+          {averageTemp && averageTemp.toFixed(2)} (C)
+          <strong>Time:</strong> {timeStep && timeStep} (s)
+        </p>
+      </div>
+      
       <div className="summary-section">
         <h4>Simulation Summary</h4>
         <p>

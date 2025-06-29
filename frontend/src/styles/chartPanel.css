@@ -4,6 +4,7 @@
   background-color: #181818;
   color: white;
   border-left: 1px solid #374151;
+  overflow: auto;
 }
 
 .chart-title {
@@ -39,4 +40,11 @@
 .chart-container {
   display: flex;
   justify-content: center;
+}
+
+.summary-section .temp-values {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
 }
