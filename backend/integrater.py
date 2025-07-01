@@ -1,6 +1,5 @@
 from scipy import integrate
 
-
 def get_total_power(power_history, time_step, time):
     return (
         integrate.trapezoid(power_history, dx=time_step) / time

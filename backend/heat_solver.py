@@ -1,8 +1,8 @@
 import itertools
 
+
 def get_neighbors_temperature(grid, point, boundary_temp):
     """
-    (CHANGED)
     Get temperatures of 26-connected (face, edge, and corner-adjacent) neighbors.
     This creates a more uniform, spherical heat spread.
     """
@@ -28,7 +28,6 @@ def get_neighbors_temperature(grid, point, boundary_temp):
 
 def calculate_heat(cell_temp, neighbor_temps, time_step, thermal_diffusivity):
     """
-    (CHANGED)
     Calculates the new temperature using the discrete 3D Laplacian for
     a 26-connected neighborhood.
     """
@@ -43,7 +42,6 @@ def calculate_heat(cell_temp, neighbor_temps, time_step, thermal_diffusivity):
 
 def heat_transfer(grid, time_step, thermal_diffusivity, boundary_temp):
     """
-    (CHANGED)
     Performs one full step of heat diffusion across the entire grid using the 26-neighbor method.
     """
     # Create a copy of the grid to store the new values. This is crucial to avoid
@@ -63,9 +61,6 @@ def heat_transfer(grid, time_step, thermal_diffusivity, boundary_temp):
                     grid[i, j, k], neighbors, time_step, thermal_diffusivity
                 )
     return new_grid
-
-
-# --- HELPER FUNCTIONS (Unchanged) ---
 
 
 def apply_cooling(grid, ambient_temp=20.0, rate=0.005):
