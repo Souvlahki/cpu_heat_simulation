@@ -67,12 +67,10 @@ export default function Sidebar({
       const data = JSON.parse(event.data);
 
       if (data.grid) {
-        console.log(data.grid);
         setGrid(data.grid);
       }
 
       if (data.average_temp) {
-        console.log(data.average_temp);
         setAverageTemp(data.average_temp);
       }
 
@@ -95,7 +93,6 @@ export default function Sidebar({
       }
 
       if (data.time_step) {
-        console.log(data.time_step);
         setTimeStep(data.time_step + 1);
       }
     };
